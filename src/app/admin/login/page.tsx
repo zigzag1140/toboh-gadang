@@ -148,13 +148,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Hint info */}
-          <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800/80 text-center">
-            <p className="text-[11px] text-slate-400">
-              Kredensial bawaan: <strong className="text-slate-600 dark:text-slate-300">admin</strong> / <strong className="text-slate-600 dark:text-slate-300">nagari2026</strong>
-            </p>
-          </div>
         </div>
 
         {/* Back Link */}
