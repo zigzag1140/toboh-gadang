@@ -1,6 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBeritaById, getSemuaBerita } from "@/lib/beritaStorage";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+// --- Setup Adapter Khusus Prisma 7 ---
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+// -------------------------------------
+
+// Mematikan cache agar berita bisa langsung dibaca real-time
+export const dynamic = "force-dynamic";
 
 export default async function BeritaDetailPage({
   params,
@@ -8,14 +20,25 @@ export default async function BeritaDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const berita = getBeritaById(id);
 
+  // 1. Ambil detail berita dari database Neon berdasarkan ID
+  const berita = await prisma.berita.findUnique({
+    where: { id: id },
+  });
+
+  // Jika ID tidak ditemukan di Neon, barulah munculkan 404
   if (!berita) {
     notFound();
   }
 
-  const allBerita = getSemuaBerita();
-  const beritaLainnya = allBerita.filter((b) => b.id !== id).slice(0, 3);
+  // 2. Ambil 3 berita lainnya dari database Neon (kecuali berita yang sedang dibaca)
+  const beritaLainnya = await prisma.berita.findMany({
+    where: {
+      id: { not: id },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
 
   return (
     <div className="py-12 bg-[#FAFBF9]/50 dark:bg-transparent min-h-screen">
@@ -26,8 +49,18 @@ export default async function BeritaDetailPage({
             href="/"
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-nagari-green-600 dark:text-slate-400 dark:hover:text-nagari-gold-400 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Kembali ke Beranda
           </Link>
@@ -38,7 +71,9 @@ export default async function BeritaDetailPage({
           {/* Article Header */}
           <div className="space-y-4 border-b border-slate-100 dark:border-slate-800 pb-6">
             <div className="flex flex-wrap items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold ${berita.tagColor}`}>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${berita.tagColor || "bg-slate-100 text-slate-800"}`}
+              >
                 {berita.kategori}
               </span>
               <span className="text-xs text-slate-400 font-medium">
@@ -133,7 +168,9 @@ export default async function BeritaDetailPage({
                   className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-nagari-green-600/40 transition-all flex flex-col justify-between group"
                 >
                   <div className="space-y-2">
-                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${item.tagColor}`}>
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${item.tagColor || "bg-slate-100 text-slate-800"}`}
+                    >
                       {item.kategori}
                     </span>
                     <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 group-hover:text-nagari-green-600 dark:group-hover:text-nagari-gold-400 line-clamp-2 transition-colors">
