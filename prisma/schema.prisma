@@ -50,3 +50,18 @@ model Anggaran {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model Umkm {
+  id        String   @id @default(uuid())
+  nama      String
+  pemilik   String
+  deskripsi String   @db.Text
+  harga     String
+  kategori  String
+  whatsapp  String
+  gambar    String?
+  gradient  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
