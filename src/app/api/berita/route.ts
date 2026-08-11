@@ -1,27 +1,24 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { PrismaClient } from "@prisma/client";
-// getSemuaBerita dan simpanBerita dihapus karena diganti Prisma
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { getTagColorForCategory } from "@/lib/beritaStorage";
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-});
+// --- Setup Adapter Khusus Prisma 7 ---
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+// -------------------------------------
+
 const ADMIN_SESSION_TOKEN = "toboh_gadang_admin_auth_valid_session_2026";
 
 export async function GET() {
   try {
-    // 1. Ambil semua data berita langsung dari database Neon
     const beritaList = await prisma.berita.findMany({
-      orderBy: {
-        id: "desc", // Urutkan dari berita terbaru
-      },
+      orderBy: { id: "desc" },
     });
-
     return NextResponse.json({ success: true, data: beritaList });
   } catch (err) {
     console.error("Error fetching berita:", err);
@@ -34,7 +31,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // 1. Verifikasi Session Admin
     const cookieStore = await cookies();
     const session = cookieStore.get("admin_session")?.value;
 
@@ -42,8 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Akses ditolak. Anda harus login sebagai admin untuk menambah berita.",
+          message: "Akses ditolak. Anda harus login sebagai admin.",
         },
         { status: 403 },
       );
@@ -64,7 +59,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Format tanggal Indonesia otomatis jika tidak diisi manual
     const formattedDate =
       tanggal ||
       new Date().toLocaleDateString("id-ID", {
@@ -78,7 +72,6 @@ export async function POST(request: Request) {
       `${Math.max(1, Math.ceil(konten.split(" ").length / 180))} menit baca`;
     const tagColor = getTagColorForCategory(kategori);
 
-    // 2. Simpan Berita ke Database Neon via Prisma
     const newBerita = await prisma.berita.create({
       data: {
         judul,
