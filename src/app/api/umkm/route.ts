@@ -11,6 +11,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const ADMIN_SESSION_TOKEN = "toboh_gadang_admin_auth_valid_session_2026";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
