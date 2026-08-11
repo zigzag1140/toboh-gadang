@@ -71,7 +71,10 @@ export default function AdminDashboardPage() {
 
   // General States
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // 1. Check Auth & Load Data
   useEffect(() => {
@@ -125,30 +128,41 @@ export default function AdminDashboardPage() {
   };
 
   // 3. Image Upload Handler
+  // 3. Image Upload Handler (JALAN TOL LANGSUNG KE IMGBB)
   const handleFileUpload = async (
     file: File,
     setImageUrl: (url: string) => void,
-    setIsUploading: (state: boolean) => void
+    setIsUploading: (state: boolean) => void,
   ) => {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
 
-      const res = await fetch("/api/upload", {
+      // MASUKKAN API KEY IMGBB ANDA DI SINI
+      formData.append("key", "524c5c7d69ba6a66dc6c6c4693a8aced");
+
+      // Masukkan file mentahnya langsung
+      formData.append("image", file);
+
+      // Terbangkan dari browser LANGSUNG ke ImgBB, bypass Vercel!
+      const res = await fetch("https://api.imgbb.com/1/upload", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
+
       if (res.ok && data.success) {
-        setImageUrl(data.url);
+        setImageUrl(data.data.url); // Berhasil dapat link!
         showToast("Foto berhasil diunggah!");
       } else {
-        showToast(data.message || "Gagal mengunggah foto.", "error");
+        showToast(
+          data.error?.message || "Gagal mengunggah foto ke server.",
+          "error",
+        );
       }
     } catch (err) {
-      showToast("Gagal menghubungi server untuk upload.", "error");
+      showToast("Gagal menghubungi server ImgBB.", "error");
     } finally {
       setIsUploading(false);
     }
@@ -174,7 +188,7 @@ export default function AdminDashboardPage() {
         day: "2-digit",
         month: "long",
         year: "numeric",
-      })
+      }),
     );
     setIsFormBeritaOpen(true);
   };
@@ -198,7 +212,14 @@ export default function AdminDashboardPage() {
         const res = await fetch(`/api/berita/${editingBerita.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ judul, kategori, gambar, ringkasan, konten, tanggal }),
+          body: JSON.stringify({
+            judul,
+            kategori,
+            gambar,
+            ringkasan,
+            konten,
+            tanggal,
+          }),
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -212,7 +233,14 @@ export default function AdminDashboardPage() {
         const res = await fetch("/api/berita", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ judul, kategori, gambar, ringkasan, konten, tanggal }),
+          body: JSON.stringify({
+            judul,
+            kategori,
+            gambar,
+            ringkasan,
+            konten,
+            tanggal,
+          }),
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -349,7 +377,8 @@ export default function AdminDashboardPage() {
       item.judul.toLowerCase().includes(searchBerita.toLowerCase()) ||
       item.ringkasan.toLowerCase().includes(searchBerita.toLowerCase());
     const matchKategori =
-      kategoriBeritaFilter === "Semua" || item.kategori.toLowerCase() === kategoriBeritaFilter.toLowerCase();
+      kategoriBeritaFilter === "Semua" ||
+      item.kategori.toLowerCase() === kategoriBeritaFilter.toLowerCase();
     return matchSearch && matchKategori;
   });
 
@@ -360,7 +389,8 @@ export default function AdminDashboardPage() {
       item.pemilik.toLowerCase().includes(searchUmkm.toLowerCase()) ||
       item.deskripsi.toLowerCase().includes(searchUmkm.toLowerCase());
     const matchKategori =
-      kategoriUmkmFilter === "Semua" || item.kategori.toLowerCase() === kategoriUmkmFilter.toLowerCase();
+      kategoriUmkmFilter === "Semua" ||
+      item.kategori.toLowerCase() === kategoriUmkmFilter.toLowerCase();
     return matchSearch && matchKategori;
   });
 
@@ -369,7 +399,9 @@ export default function AdminDashboardPage() {
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-nagari-green-600/30 border-t-nagari-green-600 rounded-full animate-spin"></div>
-          <p className="text-sm font-semibold text-slate-500">Memeriksa hak akses admin...</p>
+          <p className="text-sm font-semibold text-slate-500">
+            Memeriksa hak akses admin...
+          </p>
         </div>
       </div>
     );
@@ -435,8 +467,18 @@ export default function AdminDashboardPage() {
               className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all flex items-center gap-1.5"
             >
               <span>Lihat Website</span>
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
               </svg>
             </Link>
 
@@ -444,8 +486,18 @@ export default function AdminDashboardPage() {
               onClick={handleLogout}
               className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-semibold border border-rose-200 dark:border-rose-900/50 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
               </svg>
               <span>Keluar</span>
             </button>
@@ -459,8 +511,18 @@ export default function AdminDashboardPage() {
               <div className="flex flex-wrap items-center gap-3 flex-1">
                 <div className="relative flex-1 min-w-[240px] max-w-md">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
@@ -515,14 +577,21 @@ export default function AdminDashboardPage() {
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                         <th className="py-4 px-6">Foto &amp; Judul Berita</th>
-                        <th className="py-4 px-6 hidden sm:table-cell">Kategori</th>
-                        <th className="py-4 px-6 hidden md:table-cell">Tanggal Rilis</th>
+                        <th className="py-4 px-6 hidden sm:table-cell">
+                          Kategori
+                        </th>
+                        <th className="py-4 px-6 hidden md:table-cell">
+                          Tanggal Rilis
+                        </th>
                         <th className="py-4 px-6 text-right">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                       {filteredBerita.map((item) => (
-                        <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                        <tr
+                          key={item.id}
+                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                        >
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-3">
                               {item.gambar ? (
@@ -547,7 +616,9 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
                           <td className="py-4 px-6 hidden sm:table-cell whitespace-nowrap">
-                            <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${item.tagColor}`}>
+                            <span
+                              className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${item.tagColor}`}
+                            >
                               {item.kategori}
                             </span>
                           </td>
@@ -592,8 +663,18 @@ export default function AdminDashboardPage() {
               <div className="flex flex-wrap items-center gap-3 flex-1">
                 <div className="relative flex-1 min-w-[240px] max-w-md">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
@@ -655,7 +736,10 @@ export default function AdminDashboardPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                       {filteredUmkm.map((item) => (
-                        <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                        <tr
+                          key={item.id}
+                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                        >
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-3">
                               {item.gambar ? (
@@ -673,7 +757,9 @@ export default function AdminDashboardPage() {
                                 <h2 className="font-bold text-slate-900 dark:text-white text-sm">
                                   {item.nama}
                                 </h2>
-                                <p className="text-slate-400 text-xs">📍 {item.pemilik}</p>
+                                <p className="text-slate-400 text-xs">
+                                  📍 {item.pemilik}
+                                </p>
                               </div>
                             </div>
                           </td>
@@ -795,7 +881,11 @@ export default function AdminDashboardPage() {
                   accept="image/*"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
-                      handleFileUpload(e.target.files[0], setGambar, setIsUploadingBeritaImg);
+                      handleFileUpload(
+                        e.target.files[0],
+                        setGambar,
+                        setIsUploadingBeritaImg,
+                      );
                     }
                   }}
                   className="hidden"
@@ -812,7 +902,9 @@ export default function AdminDashboardPage() {
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                         {gambar}
                       </p>
-                      <span className="text-[10px] text-emerald-600 font-bold">✓ Foto siap dipublikasikan</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">
+                        ✓ Foto siap dipublikasikan
+                      </span>
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -839,7 +931,9 @@ export default function AdminDashboardPage() {
                     {isUploadingBeritaImg ? (
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-6 h-6 border-2 border-nagari-green-600/30 border-t-nagari-green-600 rounded-full animate-spin"></div>
-                        <span className="text-xs text-slate-500 font-medium">Sedang mengunggah foto...</span>
+                        <span className="text-xs text-slate-500 font-medium">
+                          Sedang mengunggah foto...
+                        </span>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -847,9 +941,12 @@ export default function AdminDashboardPage() {
                           📷
                         </div>
                         <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                          Klik untuk memilih &amp; upload foto dari komputer / HP
+                          Klik untuk memilih &amp; upload foto dari komputer /
+                          HP
                         </p>
-                        <p className="text-[11px] text-slate-400">Format: JPG, PNG, WebP (Maks. 5MB)</p>
+                        <p className="text-[11px] text-slate-400">
+                          Format: JPG, PNG, WebP (Maks. 5MB)
+                        </p>
                       </div>
                     )}
                   </div>
@@ -897,7 +994,11 @@ export default function AdminDashboardPage() {
                   disabled={isSubmitting || isUploadingBeritaImg}
                   className="px-6 py-2.5 bg-gradient-to-r from-nagari-green-700 to-nagari-green-600 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-60"
                 >
-                  {isSubmitting ? "Menyimpan..." : editingBerita ? "Simpan Perubahan" : "Publikasikan Berita"}
+                  {isSubmitting
+                    ? "Menyimpan..."
+                    : editingBerita
+                      ? "Simpan Perubahan"
+                      : "Publikasikan Berita"}
                 </button>
               </div>
             </form>
@@ -924,7 +1025,8 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleSubmitUmkm} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Nama Produk / Usaha UMKM <span className="text-rose-500">*</span>
+                  Nama Produk / Usaha UMKM{" "}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -939,7 +1041,8 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Nama Pemilik &amp; Korong <span className="text-rose-500">*</span>
+                    Nama Pemilik &amp; Korong{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -953,7 +1056,8 @@ export default function AdminDashboardPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Nomor WhatsApp Penjual <span className="text-rose-500">*</span>
+                    Nomor WhatsApp Penjual{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -986,7 +1090,8 @@ export default function AdminDashboardPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Harga / Kisaran Harga <span className="text-rose-500">*</span>
+                    Harga / Kisaran Harga{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1010,7 +1115,11 @@ export default function AdminDashboardPage() {
                   accept="image/*"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
-                      handleFileUpload(e.target.files[0], setGambarUmkm, setIsUploadingUmkmImg);
+                      handleFileUpload(
+                        e.target.files[0],
+                        setGambarUmkm,
+                        setIsUploadingUmkmImg,
+                      );
                     }
                   }}
                   className="hidden"
@@ -1027,7 +1136,9 @@ export default function AdminDashboardPage() {
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                         {gambarUmkm}
                       </p>
-                      <span className="text-[10px] text-emerald-600 font-bold">✓ Foto siap dipublikasikan</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">
+                        ✓ Foto siap dipublikasikan
+                      </span>
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -1054,7 +1165,9 @@ export default function AdminDashboardPage() {
                     {isUploadingUmkmImg ? (
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-6 h-6 border-2 border-nagari-green-600/30 border-t-nagari-green-600 rounded-full animate-spin"></div>
-                        <span className="text-xs text-slate-500 font-medium">Sedang mengunggah foto...</span>
+                        <span className="text-xs text-slate-500 font-medium">
+                          Sedang mengunggah foto...
+                        </span>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1062,9 +1175,12 @@ export default function AdminDashboardPage() {
                           🛍️
                         </div>
                         <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                          Klik untuk memilih &amp; upload foto produk dari komputer / HP
+                          Klik untuk memilih &amp; upload foto produk dari
+                          komputer / HP
                         </p>
-                        <p className="text-[11px] text-slate-400">Format: JPG, PNG, WebP (Maks. 5MB)</p>
+                        <p className="text-[11px] text-slate-400">
+                          Format: JPG, PNG, WebP (Maks. 5MB)
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1073,7 +1189,8 @@ export default function AdminDashboardPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Deskripsi Singkat &amp; Keunggulan Produk <span className="text-rose-500">*</span>
+                  Deskripsi Singkat &amp; Keunggulan Produk{" "}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   required
@@ -1098,7 +1215,11 @@ export default function AdminDashboardPage() {
                   disabled={isSubmitting || isUploadingUmkmImg}
                   className="px-6 py-2.5 bg-gradient-to-r from-nagari-green-700 to-nagari-green-600 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-60"
                 >
-                  {isSubmitting ? "Menyimpan..." : editingUmkm ? "Simpan Perubahan" : "Tambahkan UMKM"}
+                  {isSubmitting
+                    ? "Menyimpan..."
+                    : editingUmkm
+                      ? "Simpan Perubahan"
+                      : "Tambahkan UMKM"}
                 </button>
               </div>
             </form>
@@ -1114,7 +1235,9 @@ export default function AdminDashboardPage() {
               🗑️
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-base">Hapus Data Ini?</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                Hapus Data Ini?
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Tindakan ini permanen dan akan menghapus item dari website.
               </p>
