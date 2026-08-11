@@ -4,7 +4,13 @@ import { PrismaClient } from "@prisma/client";
 // getSemuaBerita dan simpanBerita dihapus karena diganti Prisma
 import { getTagColorForCategory } from "@/lib/beritaStorage";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 const ADMIN_SESSION_TOKEN = "toboh_gadang_admin_auth_valid_session_2026";
 
 export async function GET() {
