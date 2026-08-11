@@ -148,7 +148,7 @@ export default function AdminDashboardPage() {
       // Perhatikan: hanya ganti tulisan NAMA_CLOUD_ANDA, biarkan sisa URL-nya tetap sama
       // Contoh URL: "https://api.cloudinary.com/v1_1/dxyz1234/image/upload"
       const res = await fetch(
-        "https://api.cloudinary.com/v1_1/NAMA_CLOUD_ANDA/image/upload",
+        "https://api.cloudinary.com/v1_1/jc8k4oxi/image/upload",
         {
           method: "POST",
           body: formData,
