@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 const ADMIN_SESSION_TOKEN = "toboh_gadang_admin_auth_valid_session_2026";
 
+// Pastikan API Key ImgBB Anda tetap dipasang di sini!
 const IMGBB_API_KEY =
   process.env.IMGBB_API_KEY || "524c5c7d69ba6a66dc6c6c4693a8aced";
 
@@ -35,17 +36,23 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "File yang diunggah harus berformat gambar (JPG, PNG, WebP, dll).",
+          message: "File yang diunggah harus berformat gambar (JPG, PNG, dll).",
         },
         { status: 400 },
       );
     }
 
+    // 1. Ubah file gambar menjadi teks sandi (Base64) agar Next.js tidak mengirim 0 byte
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64Image = buffer.toString("base64");
+
+    // 2. Gunakan FormData bawaan (Multipart) agar aman untuk file gambar yang besar
     const formDataImgBB = new FormData();
     formDataImgBB.append("key", IMGBB_API_KEY);
-    formDataImgBB.append("image", file); 
+    formDataImgBB.append("image", base64Image); // Kirim teks sandinya
 
+    // 3. Terbangkan ke ImgBB
     const response = await fetch("https://api.imgbb.com/1/upload", {
       method: "POST",
       body: formDataImgBB,
@@ -57,6 +64,7 @@ export async function POST(request: Request) {
       throw new Error(data.error?.message || "Gagal upload ke server ImgBB");
     }
 
+    // Kembalikan link URL publik dari ImgBB ke form
     return NextResponse.json({
       success: true,
       message: "Gambar berhasil diunggah ke cloud!",
