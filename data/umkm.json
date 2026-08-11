@@ -1,0 +1,26 @@
+[
+  {
+    "id": "3",
+    "nama": "Sulam Bayang & Songket Halus",
+    "pemilik": "Kelompok Tenun Cantik - Korong Lua Parik",
+    "deskripsi": "Kain songket tenun tangan motif tradisional Minang bersulam benang emas berkualitas tinggi untuk pakaian formal adat.",
+    "harga": "Mulai Rp 450.000",
+    "kategori": "Kerajinan",
+    "whatsapp": "082189012345",
+    "gambar": "",
+    "gradient": "from-emerald-800 to-emerald-950",
+    "createdAt": "2026-08-10T12:08:33.212Z"
+  },
+  {
+    "id": "4",
+    "nama": "Minyak Atsiri Sereh Wangi Murni",
+    "pemilik": "Koperasi Tani Harau - Korong Kampuang Tangah",
+    "deskripsi": "Minyak sereh wangi hasil penyulingan mandiri kelompok tani Nagari sebagai bahan dasar aromaterapi dan sabun herbal.",
+    "harga": "Rp 50.000 / 100ml",
+    "kategori": "Herbal",
+    "whatsapp": "085290123456",
+    "gambar": "",
+    "gradient": "from-cyan-800 to-cyan-950",
+    "createdAt": "2026-08-10T12:08:33.212Z"
+  }
+]

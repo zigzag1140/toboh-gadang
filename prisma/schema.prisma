@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Penduduk {
+  id           String   @id @default(uuid())
+  nik          String   @unique
+  nama         String
+  jenisKelamin String   // "Laki-laki" | "Perempuan"
+  tanggalLahir DateTime
+  pekerjaan    String
+  alamat       String
+  jorong       String   // e.g. "Jorong Koto", "Jorong Baru", etc.
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Berita {
+  id        String   @id @default(uuid())
+  judul     String
+  ringkasan String
+  konten    String   @db.Text
+  kategori  String   // "Berita Utama", "Pengumuman", "Kegiatan"
+  gambar    String?  // Image file path or URL
+  tanggal   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Anggaran {
+  id        String   @id @default(uuid())
+  tahun     Int
+  tipe      String   // "PENDAPATAN" | "BELANJA"
+  kategori  String   // e.g. "Dana Desa", "Pendidikan", "Infrastruktur"
+  rincian   String
+  jumlah    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
