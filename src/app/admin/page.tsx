@@ -129,6 +129,7 @@ export default function AdminDashboardPage() {
 
   // 3. Image Upload Handler
   // 3. Image Upload Handler (JALAN TOL LANGSUNG KE IMGBB)
+  // 3. Image Upload Handler (CLOUDINARY)
   const handleFileUpload = async (
     file: File,
     setImageUrl: (url: string) => void,
@@ -137,37 +138,37 @@ export default function AdminDashboardPage() {
     setIsUploading(true);
     try {
       const formData = new FormData();
+      formData.append("file", file);
 
-      // MASUKKAN API KEY IMGBB ANDA DI SINI
-      formData.append("key", "524c5c7d69ba6a66dc6c6c4693a8aced");
+      // 1. GANTI INI dengan "Upload preset name" yang Anda catat di Tahap 2
+      // Contoh: formData.append("upload_preset", "ml_default");
+      formData.append("upload_preset", "xxx9rljq");
 
-      // Masukkan file mentahnya langsung
-      formData.append("image", file);
-
-      // Terbangkan dari browser LANGSUNG ke ImgBB, bypass Vercel!
-      const res = await fetch("https://api.imgbb.com/1/upload", {
-        method: "POST",
-        body: formData,
-      });
+      // 2. GANTI INI dengan "Cloud Name" Anda yang dicatat di Tahap 1
+      // Perhatikan: hanya ganti tulisan NAMA_CLOUD_ANDA, biarkan sisa URL-nya tetap sama
+      // Contoh URL: "https://api.cloudinary.com/v1_1/dxyz1234/image/upload"
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/NAMA_CLOUD_ANDA/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       const data = await res.json();
 
-      if (res.ok && data.success) {
-        setImageUrl(data.data.url); // Berhasil dapat link!
+      if (res.ok && data.secure_url) {
+        setImageUrl(data.secure_url); // Mengambil link gambar dari Cloudinary
         showToast("Foto berhasil diunggah!");
       } else {
-        showToast(
-          data.error?.message || "Gagal mengunggah foto ke server.",
-          "error",
-        );
+        showToast("Gagal mengunggah foto ke server.", "error");
       }
     } catch (err) {
-      showToast("Gagal menghubungi server ImgBB.", "error");
+      showToast("Gagal menghubungi server Cloudinary.", "error");
     } finally {
       setIsUploading(false);
     }
   };
-
   // Logout
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
