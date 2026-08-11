@@ -30,9 +30,11 @@ model Berita {
   judul     String
   ringkasan String
   konten    String   @db.Text
-  kategori  String   // "Berita Utama", "Pengumuman", "Kegiatan"
-  gambar    String?  // Image file path or URL
-  tanggal   DateTime @default(now())
+  kategori  String   
+  gambar    String?  
+  tanggal   String   
+  readTime  String?  
+  tagColor  String?  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
